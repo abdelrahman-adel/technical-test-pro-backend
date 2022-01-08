@@ -8,11 +8,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ProTimeSlotService {
+public class ProTimeSlotService implements IProTimeSlotService {
+
     @Autowired
     private TimeSlotRepository timeSlotRepository;
 
-    public List<TimeSlot> findByPractitionerId(String practitionerId) {
+    @Override
+	public List<TimeSlot> findByPractitionerId(Integer practitionerId) {
         return timeSlotRepository.findByPractitionerId(practitionerId);
     }
 }

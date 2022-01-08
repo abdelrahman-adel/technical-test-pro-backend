@@ -6,7 +6,8 @@ import com.maiia.pro.entity.TimeSlot;
 import com.maiia.pro.repository.PatientRepository;
 import com.maiia.pro.repository.PractitionerRepository;
 import com.maiia.pro.repository.TimeSlotRepository;
-import com.maiia.pro.service.ProAvailabilityService;
+import com.maiia.pro.service.IProAvailabilityService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class CommandLineStartupRunner implements CommandLineRunner {
     private TimeSlotRepository timeSlotRepository;
 
     @Autowired
-    private ProAvailabilityService proAvailabilityService;
+    private IProAvailabilityService proAvailabilityService;
 
     @Override
     public void run(String... args) {

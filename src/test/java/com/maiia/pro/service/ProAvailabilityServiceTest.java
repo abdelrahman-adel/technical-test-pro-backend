@@ -1,15 +1,7 @@
 package com.maiia.pro.service;
 
-import com.maiia.pro.EntityFactory;
-import com.maiia.pro.entity.Availability;
-import com.maiia.pro.entity.Practitioner;
-import com.maiia.pro.repository.AppointmentRepository;
-import com.maiia.pro.repository.AvailabilityRepository;
-import com.maiia.pro.repository.PractitionerRepository;
-import com.maiia.pro.repository.TimeSlotRepository;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -17,15 +9,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import com.maiia.pro.EntityFactory;
+import com.maiia.pro.entity.Availability;
+import com.maiia.pro.entity.Practitioner;
+import com.maiia.pro.model.AvailabilityDTO;
+import com.maiia.pro.repository.AppointmentRepository;
+import com.maiia.pro.repository.AvailabilityRepository;
+import com.maiia.pro.repository.PractitionerRepository;
+import com.maiia.pro.repository.TimeSlotRepository;
 
 @SpringBootTest
 class ProAvailabilityServiceTest {
     private final  EntityFactory entityFactory = new EntityFactory();
     private  final static Integer patient_id=657679;
     @Autowired
-    private ProAvailabilityService proAvailabilityService;
+    private IProAvailabilityService proAvailabilityService;
 
     @Autowired
     private AppointmentRepository appointmentRepository;
@@ -45,11 +47,11 @@ class ProAvailabilityServiceTest {
         LocalDateTime startDate = LocalDateTime.of(2020, Month.FEBRUARY, 5, 11, 0, 0);
         timeSlotRepository.save(entityFactory.createTimeSlot(practitioner.getId(), startDate, startDate.plusHours(1)));
 
-        List<Availability> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
+        List<AvailabilityDTO> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
 
         assertEquals(4, availabilities.size());
 
-        List<LocalDateTime> availabilitiesStartDate = availabilities.stream().map(Availability::getStartDate).collect(Collectors.toList());
+        List<LocalDateTime> availabilitiesStartDate = availabilities.stream().map(AvailabilityDTO::getStartDate).collect(Collectors.toList());
         ArrayList<LocalDateTime> expectedStartDate = new ArrayList<>();
         expectedStartDate.add(startDate);
         expectedStartDate.add(startDate.plusMinutes(15));
@@ -66,12 +68,14 @@ class ProAvailabilityServiceTest {
 
         availabilityRepository.save(Availability.builder().practitionerId(practitioner.getId()).startDate(startDate).endDate(startDate.plusMinutes(15)).build());
         availabilityRepository.save(Availability.builder().practitionerId(practitioner.getId()).startDate(startDate.plusMinutes(15)).endDate(startDate.plusMinutes(30)).build());
+        // TODO: next startDate is on 35 I think it should be 30, I need to
+        // make sure that this was meant and if yes then why.
         availabilityRepository.save(Availability.builder().practitionerId(practitioner.getId()).startDate(startDate.plusMinutes(35)).endDate(startDate.plusMinutes(45)).build());
         availabilityRepository.save(Availability.builder().practitionerId(practitioner.getId()).startDate(startDate.plusMinutes(45)).endDate(startDate.plusHours(1)).build());
 
         proAvailabilityService.generateAvailabilities(practitioner.getId());
 
-        List<Availability> availabilities = proAvailabilityService.findByPractitionerId(practitioner.getId());
+        List<AvailabilityDTO> availabilities = proAvailabilityService.findByPractitionerId(practitioner.getId());
         assertEquals(4, availabilities.size());
     }
 
@@ -85,11 +89,11 @@ class ProAvailabilityServiceTest {
                 startDate.plusMinutes(30),
                 startDate.plusMinutes(45)));
 
-        List<Availability> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
+        List<AvailabilityDTO> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
 
         assertEquals(3, availabilities.size());
 
-        List<LocalDateTime> availabilitiesStartDate = availabilities.stream().map(Availability::getStartDate).collect(Collectors.toList());
+        List<LocalDateTime> availabilitiesStartDate = availabilities.stream().map(AvailabilityDTO::getStartDate).collect(Collectors.toList());
         ArrayList<LocalDateTime> expectedStartDate = new ArrayList<>();
         expectedStartDate.add(startDate);
         expectedStartDate.add(startDate.plusMinutes(15));
@@ -112,11 +116,11 @@ class ProAvailabilityServiceTest {
                 startDate.plusMinutes(30),
                 startDate.plusMinutes(45)));
 
-        List<Availability> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
+        List<AvailabilityDTO> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
 
         assertEquals(2, availabilities.size());
 
-        List<LocalDateTime> availabilitiesStartDate = availabilities.stream().map(Availability::getStartDate).collect(Collectors.toList());
+        List<LocalDateTime> availabilitiesStartDate = availabilities.stream().map(AvailabilityDTO::getStartDate).collect(Collectors.toList());
         ArrayList<LocalDateTime> expectedStartDate = new ArrayList<>();
         expectedStartDate.add(startDate.plusMinutes(15));
         expectedStartDate.add(startDate.plusMinutes(45));
@@ -133,7 +137,7 @@ class ProAvailabilityServiceTest {
                 startDate.plusMinutes(15),
                 startDate.plusMinutes(35)));
 
-        List<Availability> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
+        List<AvailabilityDTO> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
 
         assertTrue(availabilities.size() >= 2);
     }
@@ -148,7 +152,7 @@ class ProAvailabilityServiceTest {
                 startDate.plusMinutes(20),
                 startDate.plusMinutes(35)));
 
-        List<Availability> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
+        List<AvailabilityDTO> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
 
         assertTrue(availabilities.size() >= 2);
     }
@@ -163,11 +167,12 @@ class ProAvailabilityServiceTest {
                 startDate.plusMinutes(15),
                 startDate.plusMinutes(35)));
 
-        List<Availability> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
+        List<AvailabilityDTO> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
 
+        // TODO: I believe there should be 2 availabilities only
         assertEquals(3, availabilities.size());
 
-        List<LocalDateTime> availabilitiesStartDate = availabilities.stream().map(Availability::getStartDate).collect(Collectors.toList());
+        List<LocalDateTime> availabilitiesStartDate = availabilities.stream().map(AvailabilityDTO::getStartDate).collect(Collectors.toList());
         ArrayList<LocalDateTime> expectedStartDate = new ArrayList<>();
         expectedStartDate.add(startDate);
         expectedStartDate.add(startDate.plusMinutes(35));
@@ -185,11 +190,12 @@ class ProAvailabilityServiceTest {
                 startDate.plusMinutes(20),
                 startDate.plusMinutes(35)));
 
-        List<Availability> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
+        List<AvailabilityDTO> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
 
+        // TODO: I believe there should be 2 availabilities only
         assertEquals(3, availabilities.size());
 
-        List<LocalDateTime> availabilitiesStartDate = availabilities.stream().map(Availability::getStartDate).collect(Collectors.toList());
+        List<LocalDateTime> availabilitiesStartDate = availabilities.stream().map(AvailabilityDTO::getStartDate).collect(Collectors.toList());
         ArrayList<LocalDateTime> expectedStartDate = new ArrayList<>();
         expectedStartDate.add(startDate);
         expectedStartDate.add(startDate.plusMinutes(35));

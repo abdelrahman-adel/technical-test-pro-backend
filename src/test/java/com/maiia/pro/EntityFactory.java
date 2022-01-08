@@ -1,12 +1,13 @@
 package com.maiia.pro;
 
-import com.github.javafaker.Faker;
-import com.maiia.pro.entity.Appointment;
-import com.maiia.pro.entity.Practitioner;
-import com.maiia.pro.entity.TimeSlot;
-
 import java.time.LocalDateTime;
 import java.util.Locale;
+
+import com.github.javafaker.Faker;
+import com.maiia.pro.entity.Appointment;
+import com.maiia.pro.entity.Availability;
+import com.maiia.pro.entity.Practitioner;
+import com.maiia.pro.entity.TimeSlot;
 
 public class EntityFactory {
     final Faker faker = new Faker(Locale.FRANCE);
@@ -20,6 +21,14 @@ public class EntityFactory {
 
     public TimeSlot createTimeSlot(Integer practitionerId, LocalDateTime startDate, LocalDateTime endDate) {
         return TimeSlot.builder()
+                .practitionerId(practitionerId)
+                .startDate(startDate)
+                .endDate(endDate)
+                .build();
+    }
+
+    public Availability createAvailability(Integer practitionerId, LocalDateTime startDate, LocalDateTime endDate) {
+        return Availability.builder()
                 .practitionerId(practitionerId)
                 .startDate(startDate)
                 .endDate(endDate)

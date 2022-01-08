@@ -1,22 +1,31 @@
 package com.maiia.pro.service;
 
-import com.maiia.pro.entity.Patient;
-import com.maiia.pro.repository.PatientRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.maiia.pro.mapper.IPatientMapper;
+import com.maiia.pro.model.PatientDTO;
+import com.maiia.pro.repository.PatientRepository;
 
 @Service
-public class ProPatientService {
+public class ProPatientService implements IProPatientService {
+	
     @Autowired
     private PatientRepository patientRepository;
 
-    public Patient find(String patientId) {
-        return patientRepository.findById(patientId).orElseThrow();
+    @Autowired
+    private IPatientMapper mapper;
+
+    @Override
+	public PatientDTO find(String patientId) {
+        return mapper.mapToDTO(patientRepository.findById(patientId).orElseThrow());
     }
 
-    public List<Patient> findAll() {
-        return patientRepository.findAll();
+    @Override
+	public List<PatientDTO> findAll() {
+        return patientRepository.findAll().stream().map(mapper::mapToDTO).collect(Collectors.toList());
     }
 }

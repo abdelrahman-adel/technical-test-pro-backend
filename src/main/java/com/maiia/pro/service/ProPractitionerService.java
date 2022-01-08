@@ -1,22 +1,31 @@
 package com.maiia.pro.service;
 
-import com.maiia.pro.entity.Practitioner;
-import com.maiia.pro.repository.PractitionerRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.maiia.pro.mapper.IPractitionerMapper;
+import com.maiia.pro.model.PractitionerDTO;
+import com.maiia.pro.repository.PractitionerRepository;
 
 @Service
-public class ProPractitionerService {
-    @Autowired
-    private PractitionerRepository practitionerRepository;
+public class ProPractitionerService implements IProPractitionerService {
 
-    public Practitioner find(String practitionerId) {
-        return practitionerRepository.findById(practitionerId).orElseThrow();
-    }
+	@Autowired
+	private PractitionerRepository practitionerRepository;
 
-    public List<Practitioner> findAll() {
-        return practitionerRepository.findAll();
-    }
+	@Autowired
+	private IPractitionerMapper mapper;
+
+	@Override
+	public PractitionerDTO find(String practitionerId) {
+		return mapper.mapToDTO(practitionerRepository.findById(practitionerId).orElseThrow());
+	}
+
+	@Override
+	public List<PractitionerDTO> findAll() {
+		return practitionerRepository.findAll().stream().map(mapper::mapToDTO).collect(Collectors.toList());
+	}
 }
