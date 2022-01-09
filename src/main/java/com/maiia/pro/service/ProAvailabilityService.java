@@ -95,7 +95,7 @@ public class ProAvailabilityService implements IProAvailabilityService {
 				continue;
 			}
 
-			if (isValidToExistingAvailabilities(startDate, existingAvailabilitiesDates)) {
+			if (!existingAvailabilitiesDates.contains(startDate)) {
 				Availability availability = Availability.builder().practitionerId(timeSlot.getPractitionerId())
 						.startDate(startDate).endDate(startDate.plusMinutes(15)).build();
 				availabilities.add(availability);
@@ -114,9 +114,5 @@ public class ProAvailabilityService implements IProAvailabilityService {
 
 		LocalDateTime applicableStartDate = nextAppointmentDt.minusMinutes(15);
 		return startDate.isBefore(applicableStartDate) || startDate.isEqual(applicableStartDate);
-	}
-
-	private boolean isValidToExistingAvailabilities(LocalDateTime startDate, Set<LocalDateTime> existingAvailabilitiesDates) {
-		return existingAvailabilitiesDates.isEmpty() || !existingAvailabilitiesDates.contains(startDate);
 	}
 }
